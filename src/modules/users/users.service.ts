@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { hash } from '~/shared/utils/hashing';
 
+import { AccountsService } from '../accounts/accounts.service';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from './dto';
 import { User } from './user.entity';
 
@@ -17,6 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly accountsService: AccountsService,
   ) {}
 
   async create(data: CreateUserDTO) {
@@ -36,7 +38,11 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return new UserResponseDTO(await this.userRepository.save(user));
+    const savedUser = await this.userRepository.save(user);
+
+    await this.accountsService.initAccounts(savedUser);
+
+    return new UserResponseDTO(savedUser);
   }
 
   async findAll() {

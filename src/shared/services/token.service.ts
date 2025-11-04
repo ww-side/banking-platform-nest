@@ -15,7 +15,9 @@ export class TokenService {
     const token = authHeader.split(' ')[1];
 
     try {
-      const decoded = this.jwtService.verify<{ id: string }>(token);
+      const decoded = this.jwtService.verify<{ id: string }>(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
       return decoded.id;
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
