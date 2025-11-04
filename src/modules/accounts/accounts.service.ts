@@ -40,7 +40,7 @@ export class AccountsService {
     return accounts.map((account) => ({
       id: account.id,
       currency: account.currency,
-      balance: parseFloat(account.balance),
+      balance: account.balance,
     }));
   }
 
@@ -57,7 +57,7 @@ export class AccountsService {
     return {
       id: account.id,
       currency: account.currency,
-      balance: parseFloat(account.balance),
+      balance: account.balance,
     };
   }
 }
