@@ -1,11 +1,13 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 import { DatabaseModule } from '~/core/database/database.module';
 
 import { UsersModule } from '~/modules/users/users.module';
 
+import { AccountsModule } from './modules/accounts/accounts.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
@@ -14,9 +16,14 @@ import { AuthModule } from './modules/auth/auth.module';
     CacheModule.register({
       isGlobal: true,
     }),
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
     DatabaseModule,
     UsersModule,
     AuthModule,
+    AccountsModule,
   ],
   controllers: [],
   providers: [],
