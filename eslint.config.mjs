@@ -1,0 +1,50 @@
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default [
+  {
+    ignores: ['eslint.config.mjs', 'jest.config.js', 'jest.setup.ts'],
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      'simple-import-sort': simpleImportSort,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+      sourceType: 'commonjs',
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            ['^@?\\w'],
+            ['^@nestjs'],
+            ['^~/core'],
+            ['^~/modules'],
+            ['^~/shared'],
+            ['^$'],
+            ['^'],
+          ],
+        },
+      ],
+      'simple-import-sort/exports': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+    },
+  },
+];
