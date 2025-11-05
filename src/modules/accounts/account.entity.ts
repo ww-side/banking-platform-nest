@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 
 import { BaseEntity } from '~/shared/entities/base.entity';
 
+import { LedgerEntry } from '../ledger-entry/ledger-entry.entity';
 import { User } from '../users/user.entity';
 
 @Entity('accounts')
@@ -15,4 +16,7 @@ export class Account extends BaseEntity {
 
   @Column({ type: 'decimal', precision: 18, scale: 2, default: 0 })
   balance: string;
+
+  @OneToMany(() => LedgerEntry, (entry) => entry.account)
+  ledgerEntries: LedgerEntry[];
 }

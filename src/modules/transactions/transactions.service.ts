@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Account } from '../accounts/account.entity';
+import { LedgerEntryService } from '../ledger-entry/ledger-entry.service';
 import { ExchangeDTO, TransferDTO } from './dto';
 import { ExchangeRateService } from './exchange-rate.service';
 import { Transaction } from './transaction.entity';
@@ -19,6 +20,7 @@ export class TransactionsService {
     private readonly transactionsRepo: Repository<Transaction>,
     private readonly dataSource: DataSource,
     private readonly exchangeRateService: ExchangeRateService,
+    private readonly ledgerEntryService: LedgerEntryService,
   ) {}
 
   async transfer({
@@ -53,38 +55,35 @@ export class TransactionsService {
         throw new NotFoundException('Account not found for one of the users');
       }
 
-      const fromBalance = Number(fromAccount.balance);
-      if (fromBalance < amount) {
+      if (Number(fromAccount.balance) < amount) {
         throw new BadRequestException('Insufficient balance');
       }
 
-      const newFromBalance = (fromBalance - amount).toFixed(2);
-      const newToBalance = (Number(toAccount.balance) + amount).toFixed(2);
-
-      fromAccount.balance = newFromBalance;
-      toAccount.balance = newToBalance;
-
+      fromAccount.balance = (Number(fromAccount.balance) - amount).toFixed(2);
+      toAccount.balance = (Number(toAccount.balance) + amount).toFixed(2);
       await manager.save([fromAccount, toAccount]);
 
-      const senderTx = manager.create(Transaction, {
+      const transaction = manager.create(Transaction, {
         user: fromAccount.user,
         type: 'transfer',
-        description: description || `Transfer to user ${toAccount.user.id}`,
-        totalAmount: (-amount).toFixed(2),
-        currency,
-      });
-
-      const receiverTx = manager.create(Transaction, {
-        user: toAccount.user,
-        type: 'transfer',
-        description: description || `Transfer from user ${fromAccount.user.id}`,
+        description:
+          description ||
+          `Transfer ${amount} ${currency} from user ${fromUserId} to ${toUserId}`,
         totalAmount: amount.toFixed(2),
         currency,
       });
+      const savedTx = await manager.save(transaction);
 
-      await manager.save([senderTx, receiverTx]);
+      await this.ledgerEntryService.createDoubleEntry({
+        manager,
+        transaction: savedTx,
+        fromAccount,
+        toAccount,
+        amount,
+        currency,
+      });
 
-      return senderTx;
+      return savedTx;
     });
   }
 
@@ -95,14 +94,8 @@ export class TransactionsService {
     amount,
   }: ExchangeDTO & { userId: string }) {
     if (fromCurrency === toCurrency) {
-      throw new BadRequestException('Currencies must be different');
+      throw new BadRequestException('Cannot exchange the same currency');
     }
-
-    if (amount <= 0) {
-      throw new BadRequestException('Amount must be greater than zero');
-    }
-
-    const rate = this.exchangeRateService.getRate(fromCurrency, toCurrency);
 
     return this.dataSource.transaction(async (manager) => {
       const fromAccount = await manager.findOne(Account, {
@@ -113,39 +106,55 @@ export class TransactionsService {
 
       const toAccount = await manager.findOne(Account, {
         where: { user: { id: userId }, currency: toCurrency },
-        relations: ['user'],
         lock: { mode: 'pessimistic_write' },
       });
 
       if (!fromAccount || !toAccount) {
-        throw new NotFoundException(
-          'Account not found for one of the currencies',
-        );
+        throw new NotFoundException('User accounts for currencies not found');
       }
 
-      const fromBalance = Number(fromAccount.balance);
-      if (fromBalance < amount) {
-        throw new BadRequestException('Insufficient balance');
+      if (Number(fromAccount.balance) < amount) {
+        throw new BadRequestException('Insufficient balance for exchange');
       }
 
-      const convertedAmount = (amount * rate).toFixed(2);
+      const rate = this.exchangeRateService.getRate(fromCurrency, toCurrency);
 
-      fromAccount.balance = (fromBalance - amount).toFixed(2);
-      toAccount.balance = (
-        Number(toAccount.balance) + Number(convertedAmount)
-      ).toFixed(2);
+      const fromAmount = amount;
+      const toAmount = +(amount * rate).toFixed(2);
+
+      fromAccount.balance = (Number(fromAccount.balance) - fromAmount).toFixed(
+        2,
+      );
+      toAccount.balance = (Number(toAccount.balance) + toAmount).toFixed(2);
 
       await manager.save([fromAccount, toAccount]);
 
-      const tx = manager.create(Transaction, {
+      const transaction = manager.create(Transaction, {
         user: fromAccount.user,
         type: 'exchange',
-        description: `Exchange ${amount} ${fromCurrency} → ${convertedAmount} ${toCurrency}`,
-        totalAmount: convertedAmount,
-        currency: toCurrency,
+        description: `Exchange ${fromAmount} ${fromCurrency} → ${toAmount} ${toCurrency}`,
+        totalAmount: fromAmount.toFixed(2),
+        currency: fromCurrency,
+      });
+      const savedTx = await manager.save(transaction);
+
+      await this.ledgerEntryService.createExchangeEntries({
+        manager,
+        transaction: savedTx,
+        fromAccount,
+        toAccount,
+        fromAmount,
+        toAmount,
+        fromCurrency,
+        toCurrency,
       });
 
-      return manager.save(tx);
+      return {
+        transaction: savedTx,
+        rate,
+        fromAccount,
+        toAccount,
+      };
     });
   }
 

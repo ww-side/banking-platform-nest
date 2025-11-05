@@ -1,8 +1,10 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { User } from '~/modules/users/user.entity';
 
 import { BaseEntity } from '~/shared/entities/base.entity';
+
+import { LedgerEntry } from '../ledger-entry/ledger-entry.entity';
 
 export type TransactionType = 'transfer' | 'exchange';
 
@@ -22,4 +24,9 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: 'varchar', length: 3 })
   currency: string;
+
+  @OneToMany(() => LedgerEntry, (entry) => entry.transaction, {
+    cascade: true,
+  })
+  ledgerEntries: LedgerEntry[];
 }

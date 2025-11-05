@@ -5,11 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { DatabaseModule } from '~/core/database/database.module';
 
+import { AccountsModule } from '~/modules/accounts/accounts.module';
+import { AuthModule } from '~/modules/auth/auth.module';
+import { LedgerEntryModule } from '~/modules/ledger-entry/ledger-entry.module';
+import { TransactionsModule } from '~/modules/transactions/transactions.module';
 import { UsersModule } from '~/modules/users/users.module';
-
-import { AccountsModule } from './modules/accounts/accounts.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { TransactionsModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -26,6 +26,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     AuthModule,
     AccountsModule,
     TransactionsModule,
+    LedgerEntryModule,
   ],
   controllers: [],
   providers: [],
