@@ -1,8 +1,9 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
-import { BaseEntity } from '~/shared/entities/base.entity';
+import { Account } from '~/modules/accounts/account.entity';
+import { Transaction } from '~/modules/transactions/transaction.entity';
 
-import { Account } from '../accounts/account.entity';
+import { BaseEntity } from '~/shared/entities/base.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -17,4 +18,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Account, (account) => account.user)
   accounts: Account[];
+
+  @OneToMany(() => Transaction, (tx) => tx.user)
+  transactions: Transaction[];
 }
