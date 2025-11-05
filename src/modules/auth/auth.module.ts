@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { UsersModule } from '~/modules/users/users.module';
+import { UsersModule } from '~/core/users/users.module';
 
 import { TokenService } from '~/shared/services/token.service';
 
