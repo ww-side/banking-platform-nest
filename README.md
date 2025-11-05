@@ -50,3 +50,4 @@ LedgerEntry
 - Database: PostgreSQL
 - Containerization: Docker
 - Package Manager: pnpm
+- Documentation: Swagger
