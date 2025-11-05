@@ -3,7 +3,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Account } from '../accounts/account.entity';
+import { Account } from '../../core/accounts/account.entity';
 import { Transaction } from '../transactions/transaction.entity';
 import { LedgerEntry } from './ledger-entry.entity';
 

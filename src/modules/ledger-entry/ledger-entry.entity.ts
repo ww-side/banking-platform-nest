@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '~/shared/entities/base.entity';
 
-import { Account } from '../accounts/account.entity';
+import { Account } from '../../core/accounts/account.entity';
 import { Transaction } from '../transactions/transaction.entity';
 
 @Entity('ledger')

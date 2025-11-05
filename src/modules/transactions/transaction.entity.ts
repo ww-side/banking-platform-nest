@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
-import { User } from '~/modules/users/user.entity';
+import { User } from '~/core/users/user.entity';
 
 import { BaseEntity } from '~/shared/entities/base.entity';
 

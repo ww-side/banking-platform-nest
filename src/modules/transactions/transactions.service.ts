@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Account } from '../accounts/account.entity';
+import { Account } from '../../core/accounts/account.entity';
 import { LedgerEntryService } from '../ledger-entry/ledger-entry.service';
 import { ExchangeDTO, TransferDTO } from './dto';
 import { ExchangeRateService } from './exchange-rate.service';

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { UsersService } from '~/modules/users/users.service';
+import { UsersService } from '~/core/users/users.service';
 
 import { TokenService } from '~/shared/services/token.service';
 import { compare } from '~/shared/utils/hashing';

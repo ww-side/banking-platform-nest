@@ -3,13 +3,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
+import { AccountsModule } from '~/core/accounts/accounts.module';
 import { DatabaseModule } from '~/core/database/database.module';
+import { UsersModule } from '~/core/users/users.module';
 
-import { AccountsModule } from '~/modules/accounts/accounts.module';
 import { AuthModule } from '~/modules/auth/auth.module';
 import { LedgerEntryModule } from '~/modules/ledger-entry/ledger-entry.module';
 import { TransactionsModule } from '~/modules/transactions/transactions.module';
-import { UsersModule } from '~/modules/users/users.module';
 
 @Module({
   imports: [

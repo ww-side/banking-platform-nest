@@ -1,9 +1,10 @@
 import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 
-import { BaseEntity } from '~/shared/entities/base.entity';
+import { User } from '~/core/users/user.entity';
 
-import { LedgerEntry } from '../ledger-entry/ledger-entry.entity';
-import { User } from '../users/user.entity';
+import { LedgerEntry } from '~/modules/ledger-entry/ledger-entry.entity';
+
+import { BaseEntity } from '~/shared/entities/base.entity';
 
 @Entity('accounts')
 @Unique(['user', 'currency'])
