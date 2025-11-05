@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
 import { Account } from '~/core/accounts/account.entity';
+
 import { Transaction } from '~/modules/transactions/transaction.entity';
 
 import { BaseEntity } from '~/shared/entities/base.entity';

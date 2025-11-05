@@ -1,4 +1,25 @@
 services:
+  app:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=mydb
+      - JWT_ACCESS_SECRET=your_access_secret_key
+      - JWT_REFRESH_SECRET=your_refresh_secret_key
+      - CORS_ORIGIN=http://localhost:3000
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm run start"
+
   postgres:
     image: postgres:15
     container_name: postgres
