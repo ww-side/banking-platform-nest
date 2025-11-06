@@ -53,16 +53,23 @@ export class TransactionsController {
   @GetTransactionsDoc()
   get(
     @Headers('Authorization') authHeader: string,
-    @Query('type') type?: 'transfer' | 'exchange',
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('type') type?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     const userId = this.tokenService.extractUserId(authHeader);
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    const safeType =
+      type === 'transfer' || type === 'exchange' ? type : undefined;
+
     return this.transactionsService.getTransactions({
       userId,
-      type,
-      page: Number(page),
-      limit: Number(limit),
+      type: safeType,
+      page: isNaN(pageNumber) || pageNumber < 1 ? 1 : pageNumber,
+      limit: isNaN(limitNumber) || limitNumber < 1 ? 10 : limitNumber,
     });
   }
 }
