@@ -7,8 +7,11 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+import { AuthGuard } from '~/shared/guards/auth-guard';
 import { TokenService } from '~/shared/services/token.service';
 
 import { CreateUserDTO, UpdateUserDTO } from './dto';
@@ -36,24 +39,32 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @FindAllUsersDoc()
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get('email/:email')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @FindUserByEmailDoc()
   findOneByEmail(@Param('email') email: string) {
     return this.usersService.findOneByEmail(email);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @FindUserByIdDoc()
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @UpdateUserDoc()
   update(
     @Body() data: UpdateUserDTO,
@@ -64,6 +75,8 @@ export class UsersController {
   }
 
   @Delete()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @DeleteUserDoc()
   delete(@Headers('Authorization') authHeader: string) {
     const id = this.tokenService.extractUserId(authHeader);
